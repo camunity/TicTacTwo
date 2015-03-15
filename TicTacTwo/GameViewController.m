@@ -19,8 +19,9 @@
 @property (strong, nonatomic) IBOutlet UILabel *labelSix;
 @property (strong, nonatomic) IBOutlet UILabel *labelSeven;
 @property (strong, nonatomic) IBOutlet UILabel *labelEight;
-
 @property (strong, nonatomic) IBOutlet UILabel *draggerLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timerLabel;
+
 @property CGPoint pointTapped;
 @property CGPoint draggerPoint;
 @property CGPoint originalPoint;
@@ -29,6 +30,8 @@
 @property NSMutableSet *corners;
 @property NSMutableSet *middles;
 @property NSMutableSet *availableCells;
+@property NSTimer *timer;
+@property int timeTick;
 
 @property bool humanPlayer;
 @property bool winner;
@@ -39,6 +42,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.timeTick = 10;
+    [self setTimer];
+    [self countDown];
     self.whichPlayerLabel.text = @"it's X's turn"; // starts off with x's turn
     self.labelsArray = [NSArray arrayWithObjects:(UILabel *)self.labelZero, self.labelOne, self.labelTwo, self.labelThree, self.labelFour, self.labelFive, self.labelSix, self.labelSeven, self.labelEight, nil];
     self.availableCells =[[NSMutableSet alloc] initWithObjects:(NSString *)
@@ -63,6 +69,7 @@
     {
         if( index != -1)
         {
+            self.timeTick = 10;
             for (UILabel *foundLabel in self.labelsArray)
             { //creates a temp object to search array
                 if ([[self.labelsArray objectAtIndex:index] isEqual:foundLabel])
@@ -111,6 +118,7 @@
 {
     if(panRecognizer.state == UIGestureRecognizerStateEnded) //if we stop "doing gesture"
     {
+        self.timeTick = 10;
         CGPoint panPoint = [panRecognizer locationInView:self.view];
         self.draggerLabel.center = panPoint;
         NSUInteger index = [self findLabelUsingPoint:self.draggerLabel.center];
@@ -290,6 +298,30 @@
     [tempset removeObject:object];
     self.middles = tempset;
     NSLog(@"Middles set has %lu elements",[self.middles count]);
+}
+
+
+-(void)setTimer
+{
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0
+                                                  target:self
+                                                selector:@selector(countDown)
+                                                userInfo:nil
+                                                 repeats:YES];
+}
+
+
+
+-(void)countDown
+{
+
+    self.timerLabel.text = [NSString stringWithFormat:@"%i",self.timeTick];
+    self.timeTick--;
+
+    if (self.timeTick == 0)
+    {
+        self.timeTick = 10;
+    }
 }
 
 
